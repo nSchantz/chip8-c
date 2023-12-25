@@ -1,4 +1,16 @@
 #include <stdint.h>
+#include "mem.h"
+#include "op.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#define GetRegX(ins) (ins & 0x0F00 >> 8)
+#define GetRegY(ins) (ins & 0x00F0 >> 4)
+#define GetPreOp(ins) (ins & 0xF000 >> 12)
+#define GetLowThree(ins) (ins & 0x0FFF)
+#define Get8PostOp(ins) (ins & 0x000F)
+#define GetByteLow(ins) (ins & 0x00FF)
 
 typedef struct sProc {
     uint8_t reg[16];
@@ -9,4 +21,4 @@ typedef struct sProc {
     uint16_t pc;
 } sProc;
 
-int decode(sProc* psProc, uint16_t ins);
+int decode(sProc* psProc, sMem* psMem, uint16_t ins);

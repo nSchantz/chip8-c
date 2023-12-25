@@ -1,9 +1,6 @@
 #include <stdint.h>
-
-struct sMem {
-    uint8_t memory[4096];
-};
+#include "ref/mem.h"
 
 int loadROM() {
-      
+    return 1; 
 }

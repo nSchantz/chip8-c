@@ -1,4 +1,6 @@
 #include "ref/proc.h"
+#include <stdlib.h>
+#include <math.h>
 
 sProc* initProc(uint16_t stackAddr, uint16_t romAddr) {
     sProc* psProc = (sProc*)malloc(sizeof(sProc));

@@ -1,19 +1,30 @@
-#include <stdint.h>
 #include "ref/emu.h"
+#include "ref/proc.h"
+#include "ref/mem.h"
+#include <stdio.h>
 
-int main() {
-    /**
-    Setup:
-        Settings.
-        Create Proc, Create Memory
-        Load ROM into memory.
-        Setup SDL.
+int main(int argc, char* argv[]) {
 
-    Run Emulator:
-        Fetch from memory.
-        Decode in processor.
-        Execute in processor.
-    */
+    // Read Settings In
+    printf("Read Settings In");
+
+    // Create Proc, Create Memory
+    sProc* psProc = initProc(EMU_STACK_ADDR, EMU_ROM_ADDR);
+    if (psProc == NULL)
+    {
+        printf("Processor failed to initalize.\n");
+    }
+
+    sMem* psMem = initMem();
+    if (psMem == NULL)
+    {
+        printf("Memory failed to initalize.\n");
+    }
+
+    // Setup SDL
+
+    // Run Emulator
+    return 1;
 }
 
 // run(memory, processor, video)

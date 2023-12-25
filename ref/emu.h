@@ -1,8 +1,13 @@
 #ifndef CHIP_EMU_H__
 #define CHIP_EMU_H__
 
+#include <stdint.h>
+
 #define EMU_STATE_RUNNING 1
 #define EMU_STATE_STOPPED 0
+
+#define EMU_STACK_ADDR 0x999
+#define EMU_ROM_ADDR 0x100
 
 enum eEmuError {
 	E_EMU_SUCCESS,

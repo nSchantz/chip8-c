@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "mem.h"
 #include "op.h"
-#include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 #include <math.h>
 
@@ -23,6 +23,8 @@ typedef struct sProc {
     uint16_t ind;
     uint16_t pc;
 } sProc;
+
+sProc* initProc(uint16_t stackAddr, uint16_t romAddr);
 
 int decode(sProc* psProc, sMem* psMem, uint16_t ins);
 

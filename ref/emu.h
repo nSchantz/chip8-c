@@ -7,7 +7,7 @@
 #define EMU_STATE_STOPPED 0
 
 #define EMU_STACK_ADDR 0x999
-#define EMU_ROM_ADDR 0x100
+#define EMU_ROM_ADDR 0x200
 
 enum eEmuError {
 	E_EMU_SUCCESS,

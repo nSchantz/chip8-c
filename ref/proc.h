@@ -1,3 +1,6 @@
+#ifndef CHIP_PROC_H__
+#define CHIP_PROC_H__
+
 #include <stdint.h>
 #include "mem.h"
 #include "op.h"
@@ -22,3 +25,5 @@ typedef struct sProc {
 } sProc;
 
 int decode(sProc* psProc, sMem* psMem, uint16_t ins);
+
+#endif // CHIP_PROC_H__

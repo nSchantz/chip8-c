@@ -1,3 +1,6 @@
+#ifndef CHIP_OP_H__
+#define CHIP_OP_H__
+
 #define PRE_OP_MULTI_0 0x0
     #define POST_OP_0_CALL_MACH 0x0
     // May want to check Pre op byte for 0 in lower bits.
@@ -43,3 +46,5 @@
     #define POST_OP_F_STORE_BCD 0x33
     #define POST_OP_F_REG_DUMP 0x55
     #define POST_OP_F_REG_LOAD 0x65
+
+#endif // CHIP_OP_H__

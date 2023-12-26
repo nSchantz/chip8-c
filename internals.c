@@ -77,10 +77,16 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
             switch(GetLowThree(ins)) 
             {
                 case POST_OP_0_DISP_CLEAR: goto INC_PC;
-                case POST_OP_0_RET: memcpy(&psProc->pc, &psProc->sp, sizeof(psProc->pc)); psProc->sp += INS_SIZE; goto UNALTER_PC;
+                case POST_OP_0_RET: 
+                {
+                    psProc->sp += INS_SIZE;
+                    memcpy(&psProc->pc, &psMem->memory[psProc->sp], sizeof(psProc->pc)); 
+                    goto UNALTER_PC;
+                }
                 default: 
                 {
-                    memcpy(&psProc->sp, &psProc->pc + INS_SIZE, sizeof(psProc->pc)); 
+                    uint16_t nextIns = psProc->pc + INS_SIZE;
+                    memcpy(&psMem->memory[psProc->sp], &nextIns, sizeof(nextIns)); 
                     psProc->sp -= INS_SIZE;
                     psProc->pc = GetLowThree(ins);   
                     goto UNALTER_PC;                
@@ -91,10 +97,11 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         case PRE_OP_JUMP: psProc->pc = GetLowThree(ins); goto UNALTER_PC;
         case PRE_OP_CALL_SUB: 
         {
-            memcpy(&psProc->sp, &psProc->pc + INS_SIZE, sizeof(psProc->pc)); 
+            uint16_t nextIns = psProc->pc + INS_SIZE;
+            memcpy(&psMem->memory[psProc->sp], &nextIns, sizeof(nextIns)); 
             psProc->sp -= INS_SIZE;
             psProc->pc = GetLowThree(ins);   
-            goto UNALTER_PC;psProc->pc = GetLowThree(ins);
+            goto UNALTER_PC; 
         }
         case PRE_OP_EQ_SKIP_CONS:
         {

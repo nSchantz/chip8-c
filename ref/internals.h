@@ -12,10 +12,11 @@
 #define MEM_DEBUG 1
 
 // Proc Defines
-#define PROC_DEBUG 0
-#define GetRegX(ins) (ins & 0x0F00 >> 8)
-#define GetRegY(ins) (ins & 0x00F0 >> 4)
-#define GetPreOp(ins) (ins & 0xF000 >> 12)
+#define PROC_DEBUG 1
+#define INS_SIZE 2
+#define GetRegX(ins) ((ins & 0x0F00) >> 8)
+#define GetRegY(ins) ((ins & 0x00F0) >> 4)
+#define GetPreOp(ins) ((ins & 0xF000) >> 12)
 #define GetLowThree(ins) (ins & 0x0FFF)
 #define Get8PostOp(ins) (ins & 0x000F)
 #define GetByteLow(ins) (ins & 0x00FF)
@@ -42,6 +43,6 @@ int loadROM(sMem* psMem, uint16_t romAddr, FILE* rom, uint16_t romLen);
 
 // Proc Function Declarations
 sProc* initProc(uint16_t stackAddr, uint16_t romAddr);
-int decode(sProc* psProc, sMem* psMem, uint16_t ins);
+int decode(sMem* psMem, sProc* psProc, uint16_t ins);
 
 #endif // CHIP_INTERNALS_H__

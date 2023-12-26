@@ -1,7 +1,4 @@
 #include "ref/emu.h"
-#include "ref/internals.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 int main(int argc, char* argv[]) {
     FILE* pfROM;
@@ -38,24 +35,32 @@ int main(int argc, char* argv[]) {
     {
         printf("Processor failed to initalize.\n");
     }
-
-    // Debug. Try Fetching Once.
-
+    
     // Setup SDL
 
     // Run Emulator, loop in run()
-
+    run(psMem, psProc);
+    
     // End Emulation
     return 1;
 }
 
-// run(memory, processor, video)
-int run() {
+// run(memory, processor, peripheral)
+int run(sMem* psMem, sProc* psProc) {
     uint8_t emuState = EMU_STATE_RUNNING;
+    uint32_t emuCycle = EMU_DEBUG ? 0 : -1;
+    
     while (emuState) {
-        // Fetch memory
-        // Decode proc
-        // Exe proc
+        // Fetch Memory
+        // Decode Proc
+        decode(psMem, psProc, fetch(psMem, psProc));
+        // Exe/Update Peripheral
+
+        if (EMU_DEBUG)
+        {
+            emuCycle += 1;
+            if (emuCycle >= EMU_DEBUG_CYCLE_CNT) { emuState = EMU_STATE_STOPPED; break; }
+        }
     }
 
     if (emuState == EMU_STATE_STOPPED) {

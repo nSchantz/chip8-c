@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     sMem* psMem = initMem();
     if (psMem == NULL)
     {
-        printf("Memory failed to initalize.\n");
+        printf("Chip | Memory failed to initalize.\n");
     }
 
     // Load ROM
@@ -34,43 +34,56 @@ int main(int argc, char* argv[]) {
     sProc* psProc = initProc(EMU_STACK_ADDR, EMU_ROM_ADDR);
     if (psProc == NULL)
     {
-        printf("Processor failed to initalize.\n");
+        printf("Chip | Processor failed to initalize.\n");
     }
     
     // Setup SDL
     sPeriph* psPeriph = initScreen();
+    if (psPeriph == NULL)
+    {
+        printf("Chip | Peripherals failed to initalize.\n");
+    }
     
     // Run Intepreter
     run(psMem, psProc, psPeriph);
     
-    // End Emulation
+    // End Intepreter
     cleanupInternals(psMem, psProc);
     closeScreen(psPeriph);
     return 0;
 }
 
-// run(memory, processor, peripheral)
 int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
     uint8_t emuState = EMU_STATE_RUNNING;
     uint32_t emuCycle = 0;
     
     while (emuState) {
-        // Fetch Memory
-        // Decode Proc
-        decode(psMem, psProc, fetch(psMem, psProc));
-        // Exe/Update Peripheral
+        if (EMU_DEBUG) { printf("Emu  | Cycle: %d\n", emuCycle); }
 
-        if (EMU_DEBUG)
+        if (psProc->pc > EMU_ROM_ADDR + psMem->textSecLen || psProc->pc < EMU_ROM_ADDR)
         {
-            emuCycle += 1;
-            if (emuCycle >= EMU_DEBUG_CYCLE_CNT) { emuState = EMU_STATE_STOPPED; break; }
+            if (EMU_DEBUG) { printf("---- | \tPC outside of text section. Exiting...\n"); }
+            emuState = EMU_STATE_STOPPED;
+            continue;
         }
+        
+        // Fetch Instruction from Memory, Decode Instruction
+        decode(psMem, psProc, fetch(psMem, psProc));
+
+        // Update Peripheral
+        
+        // Increment Cycle
+        emuCycle += 1;
+
+        if (EMU_DEBUG && emuCycle >= EMU_DEBUG_CYCLE_CNT) { emuState = EMU_STATE_STOPPED; break; }
     }
 
-    if (emuState == EMU_STATE_STOPPED) {
+    if (emuState == EMU_STATE_STOPPED) 
+    {
         return E_EMU_SUCCESS;
     } 
-    else {
+    else 
+    {
         return E_EMU_STOP_FAIL;
     }
 }

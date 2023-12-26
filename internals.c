@@ -17,6 +17,7 @@ int loadROM(sMem* psMem, uint16_t romAddr, FILE* rom, uint16_t romLen) {
     unsigned long ret;
 
     ret = fread(&psMem->memory[romAddr], romLen, sizeof(uint8_t), rom);
+    psMem->textSecLen = romLen;
 
     if (MEM_DEBUG) 
     {

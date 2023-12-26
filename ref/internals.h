@@ -24,6 +24,7 @@
 // Mem Structs
 typedef struct sMem {
     uint8_t memory[4096];
+    uint16_t textSecLen;
 } sMem;
 
 // Proc Structs

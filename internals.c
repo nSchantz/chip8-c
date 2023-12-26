@@ -1,10 +1,47 @@
-#include "ref/proc.h"
+#include "ref/internals.h"
 #include <stdlib.h>
 #include <math.h>
+
+sMem* initMem() {
+    sMem* psMem = (sMem*)malloc(sizeof(sMem));
+    memset(psMem, 0, sizeof(sMem));
+    return psMem;
+}
+
+int loadROM(sMem* psMem, uint16_t romAddr, FILE* rom, uint16_t romLen) {
+    unsigned long ret;
+
+    ret = fread(&psMem->memory[romAddr], romLen, sizeof(uint8_t), rom);
+
+    if (MEM_DEBUG) 
+    {
+        printf("ROM in Memory:\n");
+        for(int i = 0; i < romLen; i++) {
+            printf("%02hhX", psMem->memory[romAddr + i]);
+        }
+    }
+    
+    return ret;
+}
+
+uint16_t fetch(sMem* psMem, sProc* psProc) {
+    uint16_t ins = 0;
+    memcpy(&ins, &psMem->memory[psProc->pc], sizeof(ins));
+
+    if (MEM_DEBUG)
+    {
+        printf("PC: %04X | Fetched: %04X\n", psProc->pc, ins);
+    }
+    
+    return ins;
+}
 
 sProc* initProc(uint16_t stackAddr, uint16_t romAddr) {
     sProc* psProc = (sProc*)malloc(sizeof(sProc));
     memset(psProc, 0, sizeof(sProc));
+    psProc->sp = stackAddr;
+    psProc->pc = romAddr;
+
     return psProc;
 }
 

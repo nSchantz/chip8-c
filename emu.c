@@ -1,6 +1,5 @@
 #include "ref/emu.h"
-#include "ref/proc.h"
-#include "ref/mem.h"
+#include "ref/internals.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -39,6 +38,8 @@ int main(int argc, char* argv[]) {
     {
         printf("Processor failed to initalize.\n");
     }
+
+    // Debug. Try Fetching Once.
 
     // Setup SDL
 

@@ -4,9 +4,8 @@ project(Chip8_EMU)
 add_executable(
   Chip8_EMU
   emu.c
-  proc.c
-  mem.c
-  periph.c
+  internals.c
+  peripheral.c
 )
 
 target_include_directories(

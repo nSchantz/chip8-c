@@ -24,6 +24,6 @@ enum eEmuError {
 	E_EMU_STOP_FAIL
 };
 
-int run(sMem* psMem, sProc* psProc);
+int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph);
 
 #endif // CHIP_EMU_H__

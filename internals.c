@@ -155,13 +155,12 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
                 case POST_OP_F_MEM_ADD: break;
                 case POST_OP_F_SPRITE_ADD: break;
                 case POST_OP_F_STORE_BCD: break;
-                case POST_OP_F_REG_DUMP: goto INC_PC;
-                case POST_OP_F_REG_LOAD: goto INC_PC;
+                case POST_OP_F_REG_DUMP: regDump(GetRegX(ins), psMem, psProc); goto INC_PC;
+                case POST_OP_F_REG_LOAD: regLoad(GetRegX(ins), psMem, psProc); goto INC_PC;
             }
         }        
         default: return -1;    
     }
-
 INC_PC:
     psProc->pc = psProc->pc + INS_SIZE;
     return 0;
@@ -170,6 +169,18 @@ SKIP_PC:
     psProc->pc = psProc->pc + (INS_SIZE * 2);
 UNALTER_PC:
     return 0;
+}
+
+void regDump(uint8_t regLimit, sMem* psMem, sProc* psProc) {
+    for (int i = 0; i <= regLimit; i++) {
+        psMem->memory[psProc->ind + i] = psProc->reg[i];
+    }
+}
+
+void regLoad(uint8_t regLimit, sMem* psMem, sProc* psProc) {
+    for (int i = 0; i <= regLimit; i++) {
+        psProc->reg[i] = psMem->memory[psProc->ind + i];
+    }
 }
 
 void cleanupInternals(sMem* psMem, sProc* psProc) {

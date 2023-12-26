@@ -1,7 +1,5 @@
 #include "ref/emu.h"
 
-#include "SDL.h"
-
 int main(int argc, char* argv[]) {
     FILE* pfROM;
     uint16_t romLen = 0;
@@ -41,8 +39,8 @@ int main(int argc, char* argv[]) {
     // Setup SDL
     sPeriph* psPeriph = initScreen();
     
-    // Run Emulator, loop in run()
-    run(psMem, psProc);
+    // Run Intepreter
+    run(psMem, psProc, psPeriph);
     
     // End Emulation
     cleanupInternals(psMem, psProc);
@@ -51,9 +49,9 @@ int main(int argc, char* argv[]) {
 }
 
 // run(memory, processor, peripheral)
-int run(sMem* psMem, sProc* psProc) {
+int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
     uint8_t emuState = EMU_STATE_RUNNING;
-    uint32_t emuCycle = EMU_DEBUG ? 0 : -1;
+    uint32_t emuCycle = 0;
     
     while (emuState) {
         // Fetch Memory

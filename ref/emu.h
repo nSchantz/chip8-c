@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "internals.h"
 #include "peripheral.h"
 
@@ -14,7 +15,7 @@
 #define EMU_ROM_ADDR 0x200
 
 #define EMU_DEBUG 1
-#define EMU_DEBUG_CYCLE_CNT 3
+#define EMU_DEBUG_CYCLE_CNT 5
 
 enum eEmuError {
 	E_EMU_SUCCESS,

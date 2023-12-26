@@ -13,7 +13,7 @@ sPeriph* initScreen() {
     SDL_Window *screen = SDL_CreateWindow("Chip8 - Interpreter",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            64, 32,
+            SCREEN_WIDTH, SCREEN_HEIGHT,
             0);
     if(!screen) 
     {
@@ -29,10 +29,12 @@ sPeriph* initScreen() {
     psPeriph->window = screen;
     psPeriph->renderer = renderer;
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
-    SDL_Delay(3000);
+    //SDL_Delay(3000);
+
+    return psPeriph;
 }
 
 void closeScreen(sPeriph* psPeriph) {

@@ -11,6 +11,7 @@ int main(int argc, char* argv[]) {
         printf("Usage: ./emu {rom path}");
         return 0;
     }
+    srand(time(NULL));
 
     // Open ROM file, get length
     pfROM = fopen(argv[1], "r");

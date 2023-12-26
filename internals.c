@@ -67,7 +67,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
     if (PROC_DEBUG)
     {
         printf("Proc | Decoding - 0x%04X\n", ins);
-        printf("Proc | \tOpcode - 0x%X\n", GetPreOp(ins));
+        printf("---- | \tOpcode - 0x%X\n", GetPreOp(ins));
     }
     
     switch(GetPreOp(ins))
@@ -147,7 +147,17 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         } 
         case PRE_OP_SET_MEMADDR:  psProc->ind = GetLowThree(ins);                                         goto INC_PC;
         case PRE_OP_REL_JUMP:     psProc->pc = psProc->reg[0] + GetLowThree(ins);                         goto UNALTER_PC;
-        case PRE_OP_RAND:         psProc->reg[GetRegX(ins)] = ((rand() % 256) & 0xFF) & GetByteLow(ins);  goto INC_PC;
+        case PRE_OP_RAND: 
+        {
+            uint8_t randVal = ((rand() % 256) & 0xFF);
+            uint8_t cns = GetByteLow(ins);
+            if (PROC_DEBUG) 
+            {
+                printf("---- | \t->Rand Value: %d & %d = %d\n", randVal, cns, randVal & cns);
+            }
+            psProc->reg[GetRegX(ins)] = randVal & cns;  
+            goto INC_PC;
+        }
         case PRE_OP_DISP_DRAW: break;
         case PRE_OP_KEYPRESS: break;
 

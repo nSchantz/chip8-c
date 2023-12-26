@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "internals.h"
+#include "peripheral.h"
 
 #define EMU_STATE_RUNNING 1
 #define EMU_STATE_STOPPED 0

@@ -45,4 +45,6 @@ int loadROM(sMem* psMem, uint16_t romAddr, FILE* rom, uint16_t romLen);
 sProc* initProc(uint16_t stackAddr, uint16_t romAddr);
 int decode(sMem* psMem, sProc* psProc, uint16_t ins);
 
+void cleanupInternals(sMem* psMem, sProc* psProc);
+
 #endif // CHIP_INTERNALS_H__

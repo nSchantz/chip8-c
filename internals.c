@@ -171,3 +171,8 @@ SKIP_PC:
 UNALTER_PC:
     return 0;
 }
+
+void cleanupInternals(sMem* psMem, sProc* psProc) {
+    free(psMem);
+    free(psProc);
+}

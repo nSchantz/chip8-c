@@ -20,8 +20,14 @@ int loadROM(sMem* psMem, uint16_t romAddr, FILE* rom, uint16_t romLen) {
 
     if (MEM_DEBUG) 
     {
+        uint16_t cnt = 0;
         printf("Mem  | ROM in Memory: ");
         for(int i = 0; i < romLen; i++) {
+            if (cnt % 2 == 0) 
+            {
+                printf(" ");
+            }
+            cnt++;
             printf("%02hhX", psMem->memory[romAddr + i]);
         }
         printf("\n");
@@ -61,7 +67,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
     if (PROC_DEBUG)
     {
         printf("Proc | Decoding - 0x%04X\n", ins);
-        printf("Proc | \t\tOpcode - 0x%X\n", GetPreOp(ins));
+        printf("Proc | \tOpcode - 0x%X\n", GetPreOp(ins));
     }
     
     switch(GetPreOp(ins))
@@ -70,23 +76,25 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         {
             switch(GetLowThree(ins)) 
             {
-                case POST_OP_0_DISP_CLEAR: break;
-                case POST_OP_0_RET: break;
+                case POST_OP_0_DISP_CLEAR: goto INC_PC;
+                case POST_OP_0_RET: memcpy(&psProc->pc, &psProc->sp, sizeof(psProc->pc)); psProc->sp += INS_SIZE; goto UNALTER_PC;
                 default: 
                 {
+                    memcpy(&psProc->sp, &psProc->pc + INS_SIZE, sizeof(psProc->pc)); 
+                    psProc->sp -= INS_SIZE;
                     psProc->pc = GetLowThree(ins);   
-                    // Push on stack
                     goto UNALTER_PC;                
                 } //POST_OP_0_CALL_MACH
             }
-            break;
+            printf("cursed. this should not be reached."); break;
         }
         case PRE_OP_JUMP: psProc->pc = GetLowThree(ins); goto UNALTER_PC;
         case PRE_OP_CALL_SUB: 
         {
+            memcpy(&psProc->sp, &psProc->pc + INS_SIZE, sizeof(psProc->pc)); 
+            psProc->sp -= INS_SIZE;
             psProc->pc = GetLowThree(ins);   
-            // Push on stack
-            goto UNALTER_PC;
+            goto UNALTER_PC;psProc->pc = GetLowThree(ins);
         }
         case PRE_OP_EQ_SKIP_CONS:
         {
@@ -130,9 +138,9 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         {  
             if (psProc->reg[GetRegX(ins)] != psProc->reg[GetRegY(ins)]) { goto SKIP_PC; } else { goto INC_PC; }       
         } 
-        case PRE_OP_SET_MEMADDR:  psProc->ind = GetLowThree(ins);                                goto INC_PC;
-        case PRE_OP_REL_JUMP:     psProc->pc = psProc->reg[0] + GetLowThree(ins);                goto UNALTER_PC;
-        case PRE_OP_RAND:         psProc->reg[GetRegX(ins)] = (rand() % 256) & GetByteLow(ins);  goto INC_PC;
+        case PRE_OP_SET_MEMADDR:  psProc->ind = GetLowThree(ins);                                         goto INC_PC;
+        case PRE_OP_REL_JUMP:     psProc->pc = psProc->reg[0] + GetLowThree(ins);                         goto UNALTER_PC;
+        case PRE_OP_RAND:         psProc->reg[GetRegX(ins)] = ((rand() % 256) & 0xFF) & GetByteLow(ins);  goto INC_PC;
         case PRE_OP_DISP_DRAW: break;
         case PRE_OP_KEYPRESS: break;
 
@@ -140,15 +148,15 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         {
             switch(ins & 0x00FF)
             {
-                case POST_OP_F_GET_DELAY_TIMER:  psProc->reg[GetRegX(ins)] = psProc->delTimer;  break;                
-                case POST_OP_F_KEYPRESS_BLOCK:   psProc->reg[GetRegX(ins)] = 1;                 break; // Replace with blocking function
-                case POST_OP_F_SET_DELAY_TIMER:  psProc->delTimer = psProc->reg[GetRegX(ins)];  break;
-                case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];  break;
+                case POST_OP_F_GET_DELAY_TIMER:  psProc->reg[GetRegX(ins)] = psProc->delTimer;  goto INC_PC;                
+                case POST_OP_F_KEYPRESS_BLOCK:   psProc->reg[GetRegX(ins)] = 1;                 goto INC_PC; // Replace with blocking function
+                case POST_OP_F_SET_DELAY_TIMER:  psProc->delTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
+                case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
                 case POST_OP_F_MEM_ADD: break;
                 case POST_OP_F_SPRITE_ADD: break;
                 case POST_OP_F_STORE_BCD: break;
-                case POST_OP_F_REG_DUMP: break;
-                case POST_OP_F_REG_LOAD: break;
+                case POST_OP_F_REG_DUMP: goto INC_PC;
+                case POST_OP_F_REG_LOAD: goto INC_PC;
             }
         }        
         default: return -1;    

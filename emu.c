@@ -1,5 +1,7 @@
 #include "ref/emu.h"
 
+#include "SDL.h"
+
 int main(int argc, char* argv[]) {
     FILE* pfROM;
     uint16_t romLen = 0;
@@ -37,12 +39,39 @@ int main(int argc, char* argv[]) {
     }
     
     // Setup SDL
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        fprintf(stderr, "Could not init SDL: %s\n", SDL_GetError());
+        return 1;
+    }
+    SDL_Window *screen = SDL_CreateWindow("My application",
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            640, 480,
+            0);
+    if(!screen) {
+        fprintf(stderr, "Could not create window\n");
+        return 1;
+    }
+    SDL_Renderer *renderer = SDL_CreateRenderer(screen, -1, SDL_RENDERER_SOFTWARE);
+    if(!renderer) {
+        fprintf(stderr, "Could not create renderer\n");
+        return 1;
+    }
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(3000);
+
+    SDL_DestroyWindow(screen);
+    SDL_Quit();
+    return 0;
 
     // Run Emulator, loop in run()
     run(psMem, psProc);
     
     // End Emulation
-    return 1;
+    return 0;
 }
 
 // run(memory, processor, peripheral)

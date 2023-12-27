@@ -14,6 +14,8 @@
 // Proc Defines
 #define PROC_DEBUG 1
 #define INS_SIZE 2
+#define CARRY 1
+#define FLAG_REG 0xF
 #define GetRegX(ins) ((ins & 0x0F00) >> 8)
 #define GetRegY(ins) ((ins & 0x00F0) >> 4)
 #define GetPreOp(ins) ((ins & 0xF000) >> 12)
@@ -24,6 +26,9 @@
 // Mem Structs
 typedef struct sMem {
     uint8_t memory[4096];
+    uint8_t* pFrameBufSec;
+    uint16_t* pStackSec;
+    uint16_t* pTextSec;
     uint16_t textSecLen;
 } sMem;
 
@@ -38,7 +43,7 @@ typedef struct sProc {
 } sProc;
 
 // Mem Function Declarations
-sMem* initMem();
+sMem* initMem(uint16_t stackAddr, uint16_t romAddr, uint16_t frameBufAddr);
 uint16_t fetch(sMem* psMem, sProc* psProc);
 int loadROM(sMem* psMem, uint16_t romAddr, FILE* rom, uint16_t romLen);
 
@@ -48,6 +53,8 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins);
 
 static void regDump(uint8_t regLimit, sMem* psMem, sProc* psProc);
 static void regLoad(uint8_t regLimit, sMem* psMem, sProc* psProc);
+static void clearFrameBuf(sMem* psMem);
+static void writeFrameBuf(sMem* psMem, sProc* psProc);
 
 void cleanupInternals(sMem* psMem, sProc* psProc);
 

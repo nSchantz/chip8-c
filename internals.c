@@ -3,13 +3,16 @@
 #include <netinet/in.h>
 #include <math.h>
 
-sMem* initMem() {
+sMem* initMem(uint16_t stackAddr, uint16_t romAddr, uint16_t frameBufAddr) {
     sMem* psMem = (sMem*)malloc(sizeof(sMem));
     if(psMem == NULL)
     {
         return NULL;
     }
     memset(psMem, 0, sizeof(sMem));
+    psMem->pFrameBufSec = psMem->memory + frameBufAddr;
+    psMem->pStackSec = (uint16_t*)psMem->memory + stackAddr;
+    psMem->pTextSec = (uint16_t*)psMem->memory + romAddr;
     return psMem;
 }
 
@@ -77,7 +80,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         {
             switch(GetLowThree(ins)) 
             {
-                case POST_OP_0_DISP_CLEAR: goto INC_PC;
+                case POST_OP_0_DISP_CLEAR: clearFrameBuf(psMem); goto INC_PC;
                 case POST_OP_0_RET: 
                 {
                     psProc->sp += INS_SIZE;
@@ -134,11 +137,32 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
                 case POST_OP_8_BIT_OR:      psProc->reg[GetRegX(ins)] |= psProc->reg[GetRegY(ins)];  goto INC_PC;
                 case POST_OP_8_BIT_AND:     psProc->reg[GetRegX(ins)] &= psProc->reg[GetRegY(ins)];  goto INC_PC;
                 case POST_OP_8_BIT_XOR:     psProc->reg[GetRegX(ins)] ^= psProc->reg[GetRegY(ins)];  goto INC_PC;
-                case POST_OP_8_ADD_REG: break;
-                case POST_OP_8_SUB_REG: break;
-                case POST_OP_8_SHIFT_RIGHT: break;
-                case POST_OP_8_REV_SUB: break;
-                case POST_OP_8_SHIFT_LEFT: break;
+                case POST_OP_8_ADD_REG: 
+                {
+                    uint8_t regX = GetRegX(ins);
+                    uint8_t regY = GetRegY(ins);
+                    psProc->reg[FLAG_REG] = (psProc->reg[regX] + psProc->reg[regY] > UINT8_MAX) ? 1 : 0; 
+                    psProc->reg[regX] = psProc->reg[regX] + psProc->reg[regY];
+                    goto INC_PC;
+                }
+                case POST_OP_8_SUB_REG:
+                {
+                    uint8_t regX = GetRegX(ins);
+                    uint8_t regY = GetRegY(ins);
+                    psProc->reg[FLAG_REG] = (psProc->reg[regX] - psProc->reg[regY] < 0) ? 0 : 1; 
+                    psProc->reg[regX] = psProc->reg[regX] - psProc->reg[regY];
+                    goto INC_PC;
+                }
+                case POST_OP_8_SHIFT_RIGHT: psProc->reg[FLAG_REG] = (psProc->reg[GetRegX(ins)] & 0x01); psProc->reg[GetRegX(ins)] >>= 1; goto INC_PC;
+                case POST_OP_8_REV_SUB:
+                {
+                    uint8_t regX = GetRegX(ins);
+                    uint8_t regY = GetRegY(ins);
+                    psProc->reg[FLAG_REG] = (psProc->reg[regY] - psProc->reg[regX] < 0) ? 0 : 1; 
+                    psProc->reg[regX] = psProc->reg[regY] - psProc->reg[regX];
+                    goto INC_PC;
+                }
+                case POST_OP_8_SHIFT_LEFT:  psProc->reg[FLAG_REG] = (psProc->reg[GetRegX(ins)] & 0x80); psProc->reg[GetRegX(ins)] <<= 1; goto INC_PC;
             }
             break;
         }
@@ -159,7 +183,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
             psProc->reg[GetRegX(ins)] = randVal & cns;  
             goto INC_PC;
         }
-        case PRE_OP_DISP_DRAW: break;
+        case PRE_OP_DISP_DRAW: writeFrameBuf(psMem, psProc); goto INC_PC;
         case PRE_OP_KEYPRESS: break;
 
         case PRE_OP_MULTI_F:
@@ -170,7 +194,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
                 case POST_OP_F_KEYPRESS_BLOCK:   psProc->reg[GetRegX(ins)] = 1;                 goto INC_PC; // Replace with blocking function
                 case POST_OP_F_SET_DELAY_TIMER:  psProc->delTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
                 case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
-                case POST_OP_F_MEM_ADD: break;
+                case POST_OP_F_MEM_ADD: psProc->ind += psProc->reg[GetRegX(ins)]; goto INC_PC;
                 case POST_OP_F_SPRITE_ADD: break;
                 case POST_OP_F_STORE_BCD: break;
                 case POST_OP_F_REG_DUMP: regDump(GetRegX(ins), psMem, psProc); goto INC_PC;
@@ -199,6 +223,14 @@ void regLoad(uint8_t regLimit, sMem* psMem, sProc* psProc) {
     for (int i = 0; i <= regLimit; i++) {
         psProc->reg[i] = psMem->memory[psProc->ind + i];
     }
+}
+
+void clearFrameBuf(sMem* psMem) {
+    memset(psMem->pFrameBufSec, 0, 0x100);
+}
+
+void writeFrameBuf(sMem* psMem, sProc* psProc) {
+    
 }
 
 void cleanupInternals(sMem* psMem, sProc* psProc) {

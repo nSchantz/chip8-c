@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     rewind(pfROM);
 
     // Create/Init Memory
-    sMem* psMem = initMem();
+    sMem* psMem = initMem(EMU_STACK_ADDR, EMU_ROM_ADDR, EMU_FRAMEBUF_ADDR);
     if (psMem == NULL)
     {
         printf("Chip | Memory failed to initalize.\n");

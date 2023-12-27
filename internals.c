@@ -170,8 +170,8 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         {  
             if (psProc->reg[GetRegX(ins)] != psProc->reg[GetRegY(ins)]) { goto SKIP_PC; } else { goto INC_PC; }       
         } 
-        case PRE_OP_SET_MEMADDR:  psProc->ind = GetLowThree(ins);                                         goto INC_PC;
-        case PRE_OP_REL_JUMP:     psProc->pc = psProc->reg[0] + GetLowThree(ins);                         goto UNALTER_PC;
+        case PRE_OP_SET_MEMADDR:  psProc->ind = GetLowThree(ins);                   goto INC_PC;
+        case PRE_OP_REL_JUMP:     psProc->pc = psProc->reg[0] + GetLowThree(ins);   goto UNALTER_PC;
         case PRE_OP_RAND: 
         {
             uint8_t randVal = ((rand() % 256) & 0xFF);
@@ -230,7 +230,9 @@ void clearFrameBuf(sMem* psMem) {
 }
 
 void writeFrameBuf(sMem* psMem, sProc* psProc) {
-    
+    for (int i = 0; i < 0x100; i++) {
+        psMem->pFrameBufSec[i] = (rand() % 256) & 0xFF;
+    }
 }
 
 void cleanupInternals(sMem* psMem, sProc* psProc) {

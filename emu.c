@@ -71,6 +71,7 @@ int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
         decode(psMem, psProc, fetch(psMem, psProc));
 
         // Update Peripheral
+        updateScreen(psPeriph, psMem);
         
         // Increment Cycle
         emuCycle += 1;

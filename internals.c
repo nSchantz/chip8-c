@@ -123,7 +123,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         }
         case PRE_OP_ADD_CONST: 
         {
-            psProc->reg[GetRegX(ins)] = GetRegX(ins) + GetByteLow(ins);
+            psProc->reg[GetRegX(ins)] = psProc->reg[GetRegX(ins)] + GetByteLow(ins);
             goto INC_PC;
         }
         case PRE_OP_REG_OPER: 

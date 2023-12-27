@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
     run(psMem, psProc, psPeriph);
     
     // End Intepreter
+    SDL_Delay(20000);
     cleanupInternals(psMem, psProc);
     closeScreen(psPeriph);
     return 0;

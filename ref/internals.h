@@ -2,10 +2,12 @@
 #define CHIP_INTERNALS_H__
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
 #include <math.h>
+#include <netinet/in.h>
 #include "op.h"
 
 // Mem Defines
@@ -20,6 +22,7 @@
 #define GetRegY(ins) ((ins & 0x00F0) >> 4)
 #define GetPreOp(ins) ((ins & 0xF000) >> 12)
 #define GetLowThree(ins) (ins & 0x0FFF)
+#define GetDrawN(ins) (ins & 0x000F)
 #define Get8PostOp(ins) (ins & 0x000F)
 #define GetByteLow(ins) (ins & 0x00FF)
 
@@ -54,7 +57,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins);
 static void regDump(uint8_t regLimit, sMem* psMem, sProc* psProc);
 static void regLoad(uint8_t regLimit, sMem* psMem, sProc* psProc);
 static void clearFrameBuf(sMem* psMem);
-static void writeFrameBuf(sMem* psMem, sProc* psProc);
+static void writeFrameBuf(sMem* psMem, sProc* psProc, uint8_t regX, uint8_t regY, uint8_t n);
 
 void cleanupInternals(sMem* psMem, sProc* psProc);
 

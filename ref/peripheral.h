@@ -1,4 +1,5 @@
-#include "SDL.h"
+#include <SDL.h>
+#include <SDL_video.h>
 #include "internals.h"
 
 #define SCREEN_WIDTH 64

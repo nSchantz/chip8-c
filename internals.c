@@ -1,7 +1,4 @@
 #include "ref/internals.h"
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <math.h>
 
 sMem* initMem(uint16_t stackAddr, uint16_t romAddr, uint16_t frameBufAddr) {
     sMem* psMem = (sMem*)malloc(sizeof(sMem));
@@ -183,7 +180,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
             psProc->reg[GetRegX(ins)] = randVal & cns;  
             goto INC_PC;
         }
-        case PRE_OP_DISP_DRAW: writeFrameBuf(psMem, psProc); goto INC_PC;
+        case PRE_OP_DISP_DRAW: writeFrameBuf(psMem, psProc, GetRegX(ins), GetRegY(ins), GetDrawN(ins)); goto INC_PC;
         case PRE_OP_KEYPRESS: break;
 
         case PRE_OP_MULTI_F:
@@ -229,10 +226,53 @@ void clearFrameBuf(sMem* psMem) {
     memset(psMem->pFrameBufSec, 0, 0x100);
 }
 
-void writeFrameBuf(sMem* psMem, sProc* psProc) {
-    for (int i = 0; i < 0x100; i++) {
-        psMem->pFrameBufSec[i] = (rand() % 256) & 0xFF;
+// A little trickier since the frame buffer is [8 Bytes (* 8 Bits/Pixels) * 32 Rows].
+void writeFrameBuf(sMem* psMem, sProc* psProc, uint8_t regX, uint8_t regY, uint8_t n) {
+    uint8_t* pData = &psMem->memory[psProc->ind]; // I
+    uint8_t* pFrameBuf = psMem->pFrameBufSec;
+    uint8_t x = psProc->reg[regX] % 64;
+    uint8_t y = psProc->reg[regY] % 32;
+    psProc->reg[FLAG_REG] = 0;
+
+    // For each line in sprite
+    for (int row = 0; row < n; row++) {
+        uint8_t sprite = pData[row];
+        
+        //printf("Printing Sprite 0x%02X at (%d, %d)\n", sprite, x, (y + row));
+        for (int spriteBit = 0; spriteBit < 8; spriteBit++) {
+            // Offset to location in frameBuf to store bit.
+            uint16_t yOffset = (y * 8) + (row * 8); // Check for wrapping or stop if bottom of screen?
+            uint16_t xByteOffset = (x + spriteBit) / 8;
+            uint8_t xBitOffset = (x + spriteBit) % 8; // For bit mask. May need to check for wrapping here.
+            uint8_t bitMask = 0x80; // 0x1000 0000. Combine with xBitOffset to modify frame bits.
+            bitMask = bitMask >> xBitOffset;
+
+            // Start with MSB
+            uint8_t currSpriteBit = (sprite >> (7 - spriteBit)) & 0x01;
+            //printf("Current Sprite: 0x%02X. Current Bit Ind: 0x%02X, Bit Value: 0x%02X\n", sprite, spriteBit, currSpriteBit);
+            if (currSpriteBit == 0x01) 
+            {
+                uint8_t currFrameBit = *(pFrameBuf + xByteOffset + yOffset) & bitMask; // Extract bit of interest in byte.
+                currFrameBit = (currFrameBit >> (7 - xBitOffset)) & 0x01; // Shift to get 1/0
+
+                if(currFrameBit == 0x01)
+                {
+                    *(pFrameBuf + xByteOffset + yOffset) ^= bitMask; // Set bit to 0
+                    psProc->reg[FLAG_REG] = 1;
+                    //printf("Pixel (%d, %d): OFF\n", (x + spriteBit), (y+row));
+                }
+                else
+                {
+                    *(pFrameBuf + xByteOffset + yOffset) |= bitMask; // Set bit to 1
+                    //printf("Pixel (%d, %d): ON\n", (x + spriteBit), (y+row));
+                }
+            }  
+        }
     }
+    
+    // for (int i = 0; i < 0x100; i++) {
+    //     psMem->pFrameBufSec[i] = (rand() % 256) & 0xFF;
+    // }
 }
 
 void cleanupInternals(sMem* psMem, sProc* psProc) {

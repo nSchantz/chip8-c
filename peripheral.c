@@ -1,5 +1,4 @@
 #include "ref/peripheral.h"
-#include <SDL_video.h>
 
 sPeriph* initScreen() {
     

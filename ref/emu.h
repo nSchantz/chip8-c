@@ -16,8 +16,10 @@
 #define EMU_FONT_ADDR 0x000
 #define EMU_ROM_ADDR 0x200
 
+#define EMU_REFRESH_RATE 60
+
 #define EMU_DEBUG 1
-#define EMU_DEBUG_CYCLE_CNT 10
+#define EMU_DEBUG_CYCLE_CNT 39
 
 enum eEmuError {
 	E_EMU_SUCCESS,

@@ -193,7 +193,14 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
                 case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
                 case POST_OP_F_MEM_ADD: psProc->ind += psProc->reg[GetRegX(ins)]; goto INC_PC;
                 case POST_OP_F_SPRITE_ADD: break;
-                case POST_OP_F_STORE_BCD: break;
+                case POST_OP_F_STORE_BCD: 
+                {
+                    uint8_t val = psProc->reg[GetRegX(ins)];
+                    psMem->memory[psProc->ind] = val / 100;  
+                    psMem->memory[psProc->ind + 1] = (val / 10) % 10;
+                    psMem->memory[psProc->ind + 2] = val % 10;
+                    goto INC_PC;
+                }
                 case POST_OP_F_REG_DUMP: regDump(GetRegX(ins), psMem, psProc); goto INC_PC;
                 case POST_OP_F_REG_LOAD: regLoad(GetRegX(ins), psMem, psProc); goto INC_PC;
             }
@@ -227,6 +234,7 @@ void clearFrameBuf(sMem* psMem) {
 }
 
 // A little trickier since the frame buffer is [8 Bytes (* 8 Bits/Pixels) * 32 Rows].
+// TODO: Checking wrapping.
 void writeFrameBuf(sMem* psMem, sProc* psProc, uint8_t regX, uint8_t regY, uint8_t n) {
     uint8_t* pData = &psMem->memory[psProc->ind]; // I
     uint8_t* pFrameBuf = psMem->pFrameBufSec;

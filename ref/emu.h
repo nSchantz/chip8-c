@@ -19,7 +19,7 @@
 #define EMU_REFRESH_RATE 60
 
 #define EMU_DEBUG 1
-#define EMU_DEBUG_CYCLE_CNT 20
+#define EMU_DEBUG_CYCLE_CNT 300
 
 enum eEmuError {
 	E_EMU_SUCCESS,

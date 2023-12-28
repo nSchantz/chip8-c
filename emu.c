@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     run(psMem, psProc, psPeriph);
     
     // End Intepreter
-    SDL_Delay(20000);
+    SDL_Delay(3000);
     cleanupInternals(psMem, psProc);
     closeScreen(psPeriph);
     return 0;
@@ -76,6 +76,8 @@ int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
         
         // Increment Cycle
         emuCycle += 1;
+
+        // TODO: Detect infinite jump cycle for program reset/exit.
 
         if (EMU_DEBUG && emuCycle >= EMU_DEBUG_CYCLE_CNT) { emuState = EMU_STATE_STOPPED; break; }
     }

@@ -11,7 +11,7 @@
 #define EMU_STATE_RUNNING 1
 #define EMU_STATE_STOPPED 0
 
-#define EMU_STACK_ADDR 0xFFF
+#define EMU_STACK_ADDR 0xFF8 // Align with code section
 #define EMU_FRAMEBUF_ADDR 0x100 // Framebuffer is 0x100-0x200 (8 bytes per row (64 bits / pixels), 32 rows: 32 * 8 = 256 bytes total)
 #define EMU_FONT_ADDR 0x000
 #define EMU_ROM_ADDR 0x200
@@ -19,7 +19,7 @@
 #define EMU_REFRESH_RATE 60
 
 #define EMU_DEBUG 1
-#define EMU_DEBUG_CYCLE_CNT 300
+#define EMU_DEBUG_CYCLE_CNT 500
 
 enum eEmuError {
 	E_EMU_SUCCESS,

@@ -82,6 +82,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
                 {
                     psProc->sp += INS_SIZE;
                     memcpy(&psProc->pc, &psMem->memory[psProc->sp], sizeof(psProc->pc)); 
+                    printf("---- | \t->Stack: 0x%04X\nReturning to: 0x%04X\n", psMem->memory[psProc->sp], psProc->pc);
                     goto UNALTER_PC;
                 }
                 default: 
@@ -102,6 +103,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
             memcpy(&psMem->memory[psProc->sp], &nextIns, sizeof(nextIns)); 
             psProc->sp -= INS_SIZE;
             psProc->pc = GetLowThree(ins);   
+            printf("---- | \t->Calling 0x%04X. Pushing 0x%04X to stack.\n", psProc->pc, nextIns);
             goto UNALTER_PC; 
         }
         case PRE_OP_EQ_SKIP_CONS:

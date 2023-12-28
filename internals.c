@@ -140,28 +140,46 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
                 {
                     uint8_t regX = GetRegX(ins);
                     uint8_t regY = GetRegY(ins);
-                    psProc->reg[FLAG_REG] = (psProc->reg[regX] + psProc->reg[regY] > UINT8_MAX) ? 1 : 0; 
+                    uint8_t tempX = psProc->reg[regX]; // Necessary for edgecase where RegX or RegY == FLAG_REG (0xF) 
+                    uint8_t tempY = psProc->reg[regY]; //
                     psProc->reg[regX] = psProc->reg[regX] + psProc->reg[regY];
+                    psProc->reg[FLAG_REG] = (tempX + tempY > UINT8_MAX) ? 1 : 0;
                     goto INC_PC;
                 }
                 case POST_OP_8_SUB_REG:
                 {
                     uint8_t regX = GetRegX(ins);
                     uint8_t regY = GetRegY(ins);
-                    psProc->reg[FLAG_REG] = (psProc->reg[regX] - psProc->reg[regY] < 0) ? 0 : 1; 
+                    uint8_t tempX = psProc->reg[regX]; // Necessary for edgecase where RegX or RegY == FLAG_REG (0xF) 
+                    uint8_t tempY = psProc->reg[regY]; //
                     psProc->reg[regX] = psProc->reg[regX] - psProc->reg[regY];
+                    psProc->reg[FLAG_REG] = (tempX  - tempY < 0) ? 0 : 1;
                     goto INC_PC;
                 }
-                case POST_OP_8_SHIFT_RIGHT: psProc->reg[FLAG_REG] = (psProc->reg[GetRegX(ins)] & 0x01); psProc->reg[GetRegX(ins)] >>= 1; goto INC_PC;
+                case POST_OP_8_SHIFT_RIGHT: 
+                {
+                    uint8_t flagBit = psProc->reg[GetRegX(ins)] & 0x01;
+                    psProc->reg[GetRegX(ins)] = psProc->reg[GetRegX(ins)] >>= 1;
+                    psProc->reg[FLAG_REG] = flagBit; 
+                    goto INC_PC;
+                }
                 case POST_OP_8_REV_SUB:
                 {
                     uint8_t regX = GetRegX(ins);
                     uint8_t regY = GetRegY(ins);
-                    psProc->reg[FLAG_REG] = (psProc->reg[regY] - psProc->reg[regX] < 0) ? 0 : 1; 
+                    uint8_t tempX = psProc->reg[regX]; // Necessary for edgecase where RegX or RegY == FLAG_REG (0xF) 
+                    uint8_t tempY = psProc->reg[regY]; //
                     psProc->reg[regX] = psProc->reg[regY] - psProc->reg[regX];
+                    psProc->reg[FLAG_REG] = (tempY - tempX < 0) ? 0 : 1;
                     goto INC_PC;
                 }
-                case POST_OP_8_SHIFT_LEFT:  psProc->reg[FLAG_REG] = (psProc->reg[GetRegX(ins)] & 0x80); psProc->reg[GetRegX(ins)] <<= 1; goto INC_PC;
+                case POST_OP_8_SHIFT_LEFT:
+                {
+                    uint8_t flagBit = psProc->reg[GetRegX(ins)] >> 7;
+                    psProc->reg[GetRegX(ins)] = psProc->reg[GetRegX(ins)] <<= 1;
+                    psProc->reg[FLAG_REG] = flagBit;
+                    goto INC_PC;
+                }
             }
             break;
         }

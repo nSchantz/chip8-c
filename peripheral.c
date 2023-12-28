@@ -36,7 +36,7 @@ sPeriph* initScreen() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
-    SDL_Delay(500);
+    SDL_Delay(100);
 
     return psPeriph;
 }

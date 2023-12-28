@@ -4,7 +4,8 @@
 #include <SDL.h>
 #include <SDL_keycode.h>
 #include <SDL_video.h>
-#include "internals.h"
+// #include "internals.h"
+#include "shared.h"
 
 #define SCREEN_WIDTH 64
 #define SCREEN_HEIGHT 32
@@ -26,17 +27,21 @@
 #define KEY_D SDLK_d
 #define KEY_E SDLK_e
 #define KEY_F SDLK_f
+#define KEY_QUIT SDLK_q
 
-typedef struct sPeriph {
-    SDL_Window* window;    
-    SDL_Renderer* renderer;
-} sPeriph;
+#define INPUT_EXIT 0xFF
+
+// typedef struct sPeriph {
+//     SDL_Window* window;    
+//     SDL_Renderer* renderer;
+//     uint8_t keys[0x10];
+// } sPeriph;
 
 sPeriph* initScreen();
 void updateScreen(sPeriph* psPeriph, sMem* psMem);
 void closeScreen(sPeriph* psPeriph);
 
-uint8_t getKey();
-void getKeyBlock(sProc *psProc, uint8_t reg);
+uint8_t getKey(sPeriph* psPeriph);
+// void getKeyBlock(sProc *psProc, uint8_t reg);
 
 #endif // CHIP_PERIPH_H__

@@ -68,15 +68,23 @@ int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
             continue;
         }
 
+        if (getKey(psPeriph) == INPUT_EXIT)
+        {
+            emuState = EMU_STATE_STOPPED;
+            continue;
+        }
         //getKeyBlock(psProc, 0);
         //printf("KeyPress: %d\n", psProc->reg[0]);
         
         // Fetch Instruction from Memory, Decode Instruction
-        decode(psMem, psProc, fetch(psMem, psProc));
+        decode(psMem, psProc, psPeriph, fetch(psMem, psProc));
 
         // Update Peripheral
-        updateScreen(psPeriph, psMem);
-        
+        if (emuCycle % EMU_REFRESH_RATE == 0)
+        {
+            updateScreen(psPeriph, psMem);
+        }
+                
         // Increment Cycle
         emuCycle += 1;
 

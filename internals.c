@@ -10,6 +10,36 @@ sMem* initMem(uint16_t stackAddr, uint16_t romAddr, uint16_t frameBufAddr) {
     psMem->pFrameBufSec = psMem->memory + frameBufAddr;
     psMem->pStackSec = (uint16_t*)psMem->memory + stackAddr;
     psMem->pTextSec = (uint16_t*)psMem->memory + romAddr;
+    psMem->pFontSec = psMem->memory;
+
+    // Move to config file
+    uint8_t fontset[FONT_SIZE] =
+    {
+    	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+    	0x20, 0x60, 0x20, 0x20, 0x70, // 1
+    	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+    	0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+    	0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+    	0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+    	0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+    	0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+    	0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+    	0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+    	0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+    	0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+    	0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+    	0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+    	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+    	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    };
+
+    // move to memcopy
+    for (int i = 0; i < FONT_SIZE; i++) {
+        *(psMem->pFontSec + i) = fontset[i];
+    }
+
+
+    
     return psMem;
 }
 
@@ -64,7 +94,7 @@ sProc* initProc(uint16_t stackAddr, uint16_t romAddr) {
     return psProc;
 }
 
-int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
+int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
     if (PROC_DEBUG)
     {
         printf("Proc | Decoding - 0x%04X\n", ins);
@@ -82,7 +112,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
                 {
                     psProc->sp += INS_SIZE;
                     memcpy(&psProc->pc, &psMem->memory[psProc->sp], sizeof(psProc->pc)); 
-                    printf("---- | \t->Stack: 0x%04X\nReturning to: 0x%04X\n", psMem->memory[psProc->sp], psProc->pc);
+                    if (PROC_DEBUG) { printf("---- | \t->Stack: 0x%04X\nReturning to: 0x%04X\n", psMem->memory[psProc->sp], psProc->pc); }
                     goto UNALTER_PC;
                 }
                 default: 
@@ -103,7 +133,7 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
             memcpy(&psMem->memory[psProc->sp], &nextIns, sizeof(nextIns)); 
             psProc->sp -= INS_SIZE;
             psProc->pc = GetLowThree(ins);   
-            printf("---- | \t->Calling 0x%04X. Pushing 0x%04X to stack.\n", psProc->pc, nextIns);
+            if (PROC_DEBUG) { printf("---- | \t->Calling 0x%04X. Pushing 0x%04X to stack.\n", psProc->pc, nextIns); }
             goto UNALTER_PC; 
         }
         case PRE_OP_EQ_SKIP_CONS:
@@ -205,8 +235,8 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         {
             switch(ins & GetByteLow(ins))
             {
-                case POST_OP_E_EQ_SKIP: if (psProc->reg[GetRegX(ins)] == getKey()) { goto SKIP_PC; } else { goto INC_PC; } 
-                case POST_OP_E_NEQ_SKIP: if (psProc->reg[GetRegX(ins)] != getKey()) { goto SKIP_PC; } else { goto INC_PC; }
+                case POST_OP_E_EQ_SKIP:  if (psPeriph->keys[psProc->reg[GetRegX(ins)]]) { goto SKIP_PC; } else { goto INC_PC; } 
+                case POST_OP_E_NEQ_SKIP: if (!psPeriph->keys[psProc->reg[GetRegX(ins)]]) { goto SKIP_PC; } else { goto INC_PC; }
             }
         }
 
@@ -214,10 +244,10 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
         {
             switch(ins & 0x00FF)
             {
-                case POST_OP_F_GET_DELAY_TIMER:  psProc->reg[GetRegX(ins)] = psProc->delTimer;  goto INC_PC;                
-                case POST_OP_F_KEYPRESS_BLOCK:   getKeyBlock(psProc, GetRegX(ins));             goto INC_PC;
-                case POST_OP_F_SET_DELAY_TIMER:  psProc->delTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
-                case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
+                case POST_OP_F_GET_DELAY_TIMER:  psProc->reg[GetRegX(ins)] = psProc->delTimer;       goto INC_PC;                
+                case POST_OP_F_KEYPRESS_BLOCK:   psProc->reg[GetRegX(ins)] = getKeyBlock(psPeriph, psProc);  goto INC_PC;
+                case POST_OP_F_SET_DELAY_TIMER:  psProc->delTimer = psProc->reg[GetRegX(ins)];       goto INC_PC;
+                case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];       goto INC_PC;
                 case POST_OP_F_MEM_ADD: psProc->ind += psProc->reg[GetRegX(ins)]; goto INC_PC;
                 case POST_OP_F_SPRITE_ADD: break;
                 case POST_OP_F_STORE_BCD: 
@@ -308,6 +338,28 @@ void writeFrameBuf(sMem* psMem, sProc* psProc, uint8_t regX, uint8_t regY, uint8
     // for (int i = 0; i < 0x100; i++) {
     //     psMem->pFrameBufSec[i] = (rand() % 256) & 0xFF;
     // }
+}
+
+uint8_t getKeyBlock(sPeriph* psPeriph, sProc* psProc) {
+    uint8_t* keys = psPeriph->keys;
+    if      (keys[0x0]) { return 0x0; }
+    else if (keys[0x1]) { return 0x1; }
+    else if (keys[0x2]) { return 0x2; }
+
+    else if (keys[0x3]) { return 0x3; }
+    else if (keys[0x4]) { return 0x4; }
+    else if (keys[0x5]) { return 0x5; }
+    else if (keys[0x6]) { return 0x6; }
+    else if (keys[0x7]) { return 0x7; }
+    else if (keys[0x8]) { return 0x8; }
+    else if (keys[0x9]) { return 0x9; }
+    else if (keys[0xA]) { return 0xA; }
+    else if (keys[0xB]) { return 0xB; }
+    else if (keys[0xC]) { return 0xC; }
+    else if (keys[0xD]) { return 0xD; }
+    else if (keys[0xE]) { return 0xE; }
+    else if (keys[0xF]) { return 0xF; }
+    else { psProc->pc -= INS_SIZE; return 0xFF; } // Cycle instruction for blocking.
 }
 
 void cleanupInternals(sMem* psMem, sProc* psProc) {

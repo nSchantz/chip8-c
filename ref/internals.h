@@ -8,10 +8,12 @@
 #include <string.h>
 #include <math.h>
 #include <netinet/in.h>
+#include "shared.h"
 #include "op.h"
 
 // Mem Defines
 #define MEM_DEBUG 1
+#define FONT_SIZE 80
 
 // Proc Defines
 #define PROC_DEBUG 1
@@ -26,24 +28,31 @@
 #define Get8PostOp(ins) (ins & 0x000F)
 #define GetByteLow(ins) (ins & 0x00FF)
 
-// Mem Structs
-typedef struct sMem {
-    uint8_t memory[4096];
-    uint8_t* pFrameBufSec;
-    uint16_t* pStackSec;
-    uint16_t* pTextSec;
-    uint16_t textSecLen;
-} sMem;
+// // Mem Structs
+// typedef struct sMem {
+//     uint8_t memory[4096];
+//     uint8_t* pFrameBufSec;
+//     uint16_t* pStackSec;
+//     uint16_t* pTextSec;
+//     uint16_t textSecLen;
+// } sMem;
 
 // Proc Structs
-typedef struct sProc {
-    uint8_t reg[16];
-    uint8_t sp;
-    uint8_t sndTimer;
-    uint8_t delTimer;
-    uint16_t ind;
-    uint16_t pc;
-} sProc;
+// typedef struct sProc {
+//     uint8_t reg[16];
+//     uint8_t sp;
+//     uint8_t sndTimer;
+//     uint8_t delTimer;
+//     uint16_t ind;
+//     uint16_t pc;
+// } sProc;
+
+// Periph Forward Declarations (Avoid cyclic dependence)
+// struct sPeriph;
+// typedef struct sPeriph sPeriph;
+// uint8_t getKey(sPeriph* psPeriph);
+// void getKeyBlock(sProc* psProc, uint8_t reg);
+uint8_t getKeyBlock(sPeriph* psPeriph, sProc* psProc);
 
 // Mem Function Declarations
 sMem* initMem(uint16_t stackAddr, uint16_t romAddr, uint16_t frameBufAddr);
@@ -52,11 +61,7 @@ int loadROM(sMem* psMem, uint16_t romAddr, FILE* rom, uint16_t romLen);
 
 // Proc Function Declarations
 sProc* initProc(uint16_t stackAddr, uint16_t romAddr);
-int decode(sMem* psMem, sProc* psProc, uint16_t ins);
-
-// Periph Forward Declarations (Avoid cyclic dependence)
-uint8_t getKey();
-void getKeyBlock(sProc* psProc, uint8_t reg);
+int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins);
 
 static void regDump(uint8_t regLimit, sMem* psMem, sProc* psProc);
 static void regLoad(uint8_t regLimit, sMem* psMem, sProc* psProc);

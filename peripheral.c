@@ -33,10 +33,10 @@ sPeriph* initScreen() {
     psPeriph->window = screen;
     psPeriph->renderer = renderer;
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 139, 255);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
-    SDL_Delay(100);
+    //SDL_Delay(100);
 
     return psPeriph;
 }
@@ -78,7 +78,70 @@ void updateScreen(sPeriph* psPeriph, sMem* psMem) {
 
     SDL_RenderPresent(psPeriph->renderer);
     free(pPixel);
-    SDL_Delay(200);
+    SDL_Delay(10);
+}
+
+uint8_t getKey() {
+    SDL_Event event;
+
+    printf("Key  | Checking key press\n");
+    while(SDL_PollEvent(&event)) {
+        if (event.type == SDL_KEYDOWN)
+        {
+            switch(event.key.keysym.sym)
+            {
+                case KEY_0: return 0x0; 
+                case KEY_1: return 0x1;
+                case KEY_2: return 0x2;
+                case KEY_3: return 0x3;
+                case KEY_4: return 0x4;
+                case KEY_5: return 0x5;
+                case KEY_6: return 0x6;
+                case KEY_7: return 0x7;
+                case KEY_8: return 0x8;
+                case KEY_9: return 0x9;
+                case KEY_A: return 0xA;
+                case KEY_B: return 0xB;
+                case KEY_C: return 0xC;
+                case KEY_D: return 0xD;
+                case KEY_E: return 0xE;
+                case KEY_F: return 0xF;
+                default: return 0xFF;
+            }
+        }
+    }
+}
+
+void getKeyBlock(sProc* psProc, uint8_t reg) {
+    SDL_Event event;
+
+    printf("Key  | Waiting for keypress...\n");
+    while (1) {
+        SDL_WaitEvent(&event); 
+        if (event.type == SDL_KEYDOWN)
+        {
+            switch(event.key.keysym.sym)
+            {
+                case KEY_0: psProc->reg[reg] = 0x0; return; 
+                case KEY_1: psProc->reg[reg] = 0x1; return;
+                case KEY_2: psProc->reg[reg] = 0x2; return;
+                case KEY_3: psProc->reg[reg] = 0x3; return;
+                case KEY_4: psProc->reg[reg] = 0x4; return;
+                case KEY_5: psProc->reg[reg] = 0x5; return;
+                case KEY_6: psProc->reg[reg] = 0x6; return;
+                case KEY_7: psProc->reg[reg] = 0x7; return;
+                case KEY_8: psProc->reg[reg] = 0x8; return;
+                case KEY_9: psProc->reg[reg] = 0x9; return;
+                case KEY_A: psProc->reg[reg] = 0xA; return;
+                case KEY_B: psProc->reg[reg] = 0xB; return;
+                case KEY_C: psProc->reg[reg] = 0xC; return;
+                case KEY_D: psProc->reg[reg] = 0xD; return;
+                case KEY_E: psProc->reg[reg] = 0xE; return;
+                case KEY_F: psProc->reg[reg] = 0xF; return;
+                default: break;
+            }
+        }    
+    }   
 }
 
 void closeScreen(sPeriph* psPeriph) {

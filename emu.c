@@ -67,6 +67,9 @@ int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
             emuState = EMU_STATE_STOPPED;
             continue;
         }
+
+        //getKeyBlock(psProc, 0);
+        //printf("KeyPress: %d\n", psProc->reg[0]);
         
         // Fetch Instruction from Memory, Decode Instruction
         decode(psMem, psProc, fetch(psMem, psProc));

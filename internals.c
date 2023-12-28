@@ -201,14 +201,21 @@ int decode(sMem* psMem, sProc* psProc, uint16_t ins) {
             goto INC_PC;
         }
         case PRE_OP_DISP_DRAW: writeFrameBuf(psMem, psProc, GetRegX(ins), GetRegY(ins), GetDrawN(ins)); goto INC_PC;
-        case PRE_OP_KEYPRESS: break;
+        case PRE_OP_KEYPRESS: 
+        {
+            switch(ins & GetByteLow(ins))
+            {
+                case POST_OP_E_EQ_SKIP: if (psProc->reg[GetRegX(ins)] == getKey()) { goto SKIP_PC; } else { goto INC_PC; } 
+                case POST_OP_E_NEQ_SKIP: if (psProc->reg[GetRegX(ins)] != getKey()) { goto SKIP_PC; } else { goto INC_PC; }
+            }
+        }
 
         case PRE_OP_MULTI_F:
         {
             switch(ins & 0x00FF)
             {
                 case POST_OP_F_GET_DELAY_TIMER:  psProc->reg[GetRegX(ins)] = psProc->delTimer;  goto INC_PC;                
-                case POST_OP_F_KEYPRESS_BLOCK:   psProc->reg[GetRegX(ins)] = 1;                 goto INC_PC; // Replace with blocking function
+                case POST_OP_F_KEYPRESS_BLOCK:   getKeyBlock(psProc, GetRegX(ins));             goto INC_PC;
                 case POST_OP_F_SET_DELAY_TIMER:  psProc->delTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
                 case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];  goto INC_PC;
                 case POST_OP_F_MEM_ADD: psProc->ind += psProc->reg[GetRegX(ins)]; goto INC_PC;

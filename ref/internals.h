@@ -54,6 +54,10 @@ int loadROM(sMem* psMem, uint16_t romAddr, FILE* rom, uint16_t romLen);
 sProc* initProc(uint16_t stackAddr, uint16_t romAddr);
 int decode(sMem* psMem, sProc* psProc, uint16_t ins);
 
+// Periph Forward Declarations (Avoid cyclic dependence)
+uint8_t getKey();
+void getKeyBlock(sProc* psProc, uint8_t reg);
+
 static void regDump(uint8_t regLimit, sMem* psMem, sProc* psProc);
 static void regLoad(uint8_t regLimit, sMem* psMem, sProc* psProc);
 static void clearFrameBuf(sMem* psMem);

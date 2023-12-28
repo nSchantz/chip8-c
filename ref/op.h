@@ -42,7 +42,7 @@
     #define POST_OP_F_SET_DELAY_TIMER 0x15
     #define POST_OP_F_SET_SOUND_TIMER 0x18
     #define POST_OP_F_MEM_ADD 0x1E
-    #define POST_OP_F_SPRITE_ADD 0x29
+    #define POST_OP_F_SPRITE_ADDR 0x29
     #define POST_OP_F_STORE_BCD 0x33
     #define POST_OP_F_REG_DUMP 0x55
     #define POST_OP_F_REG_LOAD 0x65

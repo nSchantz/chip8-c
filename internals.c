@@ -38,8 +38,6 @@ sMem* initMem(uint16_t stackAddr, uint16_t romAddr, uint16_t frameBufAddr) {
         *(psMem->pFontSec + i) = fontset[i];
     }
 
-
-    
     return psMem;
 }
 
@@ -91,6 +89,8 @@ sProc* initProc(uint16_t stackAddr, uint16_t romAddr) {
     memset(psProc, 0, sizeof(sProc));
     psProc->sp = stackAddr;
     psProc->pc = romAddr;
+    psProc->delTimer = 0;
+    psProc->sndTimer = 0;
     return psProc;
 }
 
@@ -249,7 +249,7 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
                 case POST_OP_F_SET_DELAY_TIMER:  psProc->delTimer = psProc->reg[GetRegX(ins)];       goto INC_PC;
                 case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];       goto INC_PC;
                 case POST_OP_F_MEM_ADD: psProc->ind += psProc->reg[GetRegX(ins)]; goto INC_PC;
-                case POST_OP_F_SPRITE_ADD: break;
+                case POST_OP_F_SPRITE_ADDR: psProc->ind = psProc->reg[GetRegX(ins)] * 5; goto INC_PC;
                 case POST_OP_F_STORE_BCD: 
                 {
                     uint8_t val = psProc->reg[GetRegX(ins)];

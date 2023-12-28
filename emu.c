@@ -82,6 +82,16 @@ int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
         // Update Peripheral
         if (emuCycle % EMU_REFRESH_RATE == 0)
         {
+            if (psProc->delTimer > 0)
+            {
+                psProc->delTimer -= 1;
+            }
+
+            if (psProc->sndTimer > 0)
+            {
+                psProc->sndTimer -= 1;
+            }
+
             updateScreen(psPeriph, psMem);
         }
                 

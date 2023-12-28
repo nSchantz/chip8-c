@@ -52,7 +52,7 @@
 // typedef struct sPeriph sPeriph;
 // uint8_t getKey(sPeriph* psPeriph);
 // void getKeyBlock(sProc* psProc, uint8_t reg);
-uint8_t getKeyBlock(sPeriph* psPeriph, sProc* psProc);
+
 
 // Mem Function Declarations
 sMem* initMem(uint16_t stackAddr, uint16_t romAddr, uint16_t frameBufAddr);
@@ -67,6 +67,7 @@ static void regDump(uint8_t regLimit, sMem* psMem, sProc* psProc);
 static void regLoad(uint8_t regLimit, sMem* psMem, sProc* psProc);
 static void clearFrameBuf(sMem* psMem);
 static void writeFrameBuf(sMem* psMem, sProc* psProc, uint8_t regX, uint8_t regY, uint8_t n);
+static uint8_t getKeyBlock(sPeriph* psPeriph, sProc* psProc);
 
 void cleanupInternals(sMem* psMem, sProc* psProc);
 

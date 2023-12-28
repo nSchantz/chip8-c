@@ -103,12 +103,12 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
     
     switch(GetPreOp(ins))
     {
-        case PRE_OP_MULTI_0:
+        case OP_00ZZ:
         {
             switch(GetLowThree(ins)) 
             {
-                case POST_OP_0_DISP_CLEAR: clearFrameBuf(psMem); goto INC_PC;
-                case POST_OP_0_RET: 
+                case OP_00E0: clearFrameBuf(psMem); goto INC_PC;
+                case OP_00EE: 
                 {
                     psProc->sp += INS_SIZE;
                     memcpy(&psProc->pc, &psMem->memory[psProc->sp], sizeof(psProc->pc)); 
@@ -126,8 +126,8 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
             }
             printf("cursed. this should not be reached."); break;
         }
-        case PRE_OP_JUMP: psProc->pc = GetLowThree(ins); goto UNALTER_PC;
-        case PRE_OP_CALL_SUB: 
+        case OP_1000: psProc->pc = GetLowThree(ins); goto UNALTER_PC;
+        case OP_2000: 
         {
             uint16_t nextIns = psProc->pc + INS_SIZE;
             memcpy(&psMem->memory[psProc->sp], &nextIns, sizeof(nextIns)); 
@@ -136,37 +136,37 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
             if (PROC_DEBUG) { printf("---- | \t->Calling 0x%04X. Pushing 0x%04X to stack.\n", psProc->pc, nextIns); }
             goto UNALTER_PC; 
         }
-        case PRE_OP_EQ_SKIP_CONS:
+        case OP_3000:
         {
             if (psProc->reg[GetRegX(ins)] == GetByteLow(ins)) { goto SKIP_PC; } else { goto INC_PC; }
         }
-        case PRE_OP_NEQ_SKIP_CONS: 
+        case OP_4000: 
         {
             if (psProc->reg[GetRegX(ins)] != GetByteLow(ins)) { goto SKIP_PC; } else { goto INC_PC; }
         }
-        case PRE_OP_EQ_SKIP_VAR: 
+        case OP_5000: 
         {
             if (psProc->reg[GetRegX(ins)] == psProc->reg[GetRegY(ins)]) { goto SKIP_PC; } else { goto INC_PC; }
         }
-        case PRE_OP_ASSIGN_CONST: 
+        case OP_6000: 
         {
             psProc->reg[GetRegX(ins)] = GetByteLow(ins);
             goto INC_PC;
         }
-        case PRE_OP_ADD_CONST: 
+        case OP_7000: 
         {
             psProc->reg[GetRegX(ins)] = psProc->reg[GetRegX(ins)] + GetByteLow(ins);
             goto INC_PC;
         }
-        case PRE_OP_REG_OPER: 
+        case OP_800Z: 
         {
             switch(Get8PostOp(ins))
             {
-                case POST_OP_8_ASSIGN_REG:  psProc->reg[GetRegX(ins)] = psProc->reg[GetRegY(ins)];   goto INC_PC;
-                case POST_OP_8_BIT_OR:      psProc->reg[GetRegX(ins)] |= psProc->reg[GetRegY(ins)];  goto INC_PC;
-                case POST_OP_8_BIT_AND:     psProc->reg[GetRegX(ins)] &= psProc->reg[GetRegY(ins)];  goto INC_PC;
-                case POST_OP_8_BIT_XOR:     psProc->reg[GetRegX(ins)] ^= psProc->reg[GetRegY(ins)];  goto INC_PC;
-                case POST_OP_8_ADD_REG: 
+                case OP_8000: psProc->reg[GetRegX(ins)] = psProc->reg[GetRegY(ins)];   goto INC_PC;
+                case OP_8001: psProc->reg[GetRegX(ins)] |= psProc->reg[GetRegY(ins)];  goto INC_PC;
+                case OP_8002: psProc->reg[GetRegX(ins)] &= psProc->reg[GetRegY(ins)];  goto INC_PC;
+                case OP_8003: psProc->reg[GetRegX(ins)] ^= psProc->reg[GetRegY(ins)];  goto INC_PC;
+                case OP_8004: 
                 {
                     uint8_t regX = GetRegX(ins);
                     uint8_t regY = GetRegY(ins);
@@ -176,7 +176,7 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
                     psProc->reg[FLAG_REG] = (tempX + tempY > UINT8_MAX) ? 1 : 0;
                     goto INC_PC;
                 }
-                case POST_OP_8_SUB_REG:
+                case OP_8005:
                 {
                     uint8_t regX = GetRegX(ins);
                     uint8_t regY = GetRegY(ins);
@@ -186,14 +186,14 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
                     psProc->reg[FLAG_REG] = (tempX  - tempY < 0) ? 0 : 1;
                     goto INC_PC;
                 }
-                case POST_OP_8_SHIFT_RIGHT: 
+                case OP_8006: 
                 {
                     uint8_t flagBit = psProc->reg[GetRegX(ins)] & 0x01;
                     psProc->reg[GetRegX(ins)] = psProc->reg[GetRegX(ins)] >>= 1;
                     psProc->reg[FLAG_REG] = flagBit; 
                     goto INC_PC;
                 }
-                case POST_OP_8_REV_SUB:
+                case OP_8007:
                 {
                     uint8_t regX = GetRegX(ins);
                     uint8_t regY = GetRegY(ins);
@@ -203,7 +203,7 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
                     psProc->reg[FLAG_REG] = (tempY - tempX < 0) ? 0 : 1;
                     goto INC_PC;
                 }
-                case POST_OP_8_SHIFT_LEFT:
+                case OP_800E:
                 {
                     uint8_t flagBit = psProc->reg[GetRegX(ins)] >> 7;
                     psProc->reg[GetRegX(ins)] = psProc->reg[GetRegX(ins)] <<= 1;
@@ -213,13 +213,10 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
             }
             break;
         }
-        case PRE_OP_NEQ_SKIP_VAR: 
-        {  
-            if (psProc->reg[GetRegX(ins)] != psProc->reg[GetRegY(ins)]) { goto SKIP_PC; } else { goto INC_PC; }       
-        } 
-        case PRE_OP_SET_MEMADDR:  psProc->ind = GetLowThree(ins);                   goto INC_PC;
-        case PRE_OP_REL_JUMP:     psProc->pc = psProc->reg[0] + GetLowThree(ins);   goto UNALTER_PC;
-        case PRE_OP_RAND: 
+        case OP_9000: if (psProc->reg[GetRegX(ins)] != psProc->reg[GetRegY(ins)]) { goto SKIP_PC; } else { goto INC_PC; }       
+        case OP_A000: psProc->ind = GetLowThree(ins);                               goto INC_PC;
+        case OP_B000: psProc->pc = psProc->reg[0] + GetLowThree(ins);               goto UNALTER_PC;
+        case OP_C000: 
         {
             uint8_t randVal = ((rand() % 256) & 0xFF);
             uint8_t cns = GetByteLow(ins);
@@ -230,27 +227,27 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
             psProc->reg[GetRegX(ins)] = randVal & cns;  
             goto INC_PC;
         }
-        case PRE_OP_DISP_DRAW: writeFrameBuf(psMem, psProc, GetRegX(ins), GetRegY(ins), GetDrawN(ins)); goto INC_PC;
-        case PRE_OP_KEYPRESS: 
+        case OP_D000: writeFrameBuf(psMem, psProc, GetRegX(ins), GetRegY(ins), GetDrawN(ins)); goto INC_PC;
+        case OP_E0ZZ: 
         {
             switch(ins & GetByteLow(ins))
             {
-                case POST_OP_E_EQ_SKIP:  if (psPeriph->keys[psProc->reg[GetRegX(ins)]]) { goto SKIP_PC; } else { goto INC_PC; } 
-                case POST_OP_E_NEQ_SKIP: if (!psPeriph->keys[psProc->reg[GetRegX(ins)]]) { goto SKIP_PC; } else { goto INC_PC; }
+                case OP_E09E:  if (psPeriph->keys[psProc->reg[GetRegX(ins)]])  { goto SKIP_PC; } else { goto INC_PC; } 
+                case OP_E0A1:  if (!psPeriph->keys[psProc->reg[GetRegX(ins)]]) { goto SKIP_PC; } else { goto INC_PC; }
             }
         }
 
-        case PRE_OP_MULTI_F:
+        case OP_F0ZZ:
         {
-            switch(ins & 0x00FF)
+            switch(ins & GetByteLow(ins))
             {
-                case POST_OP_F_GET_DELAY_TIMER:  psProc->reg[GetRegX(ins)] = psProc->delTimer;       goto INC_PC;                
-                case POST_OP_F_KEYPRESS_BLOCK:   psProc->reg[GetRegX(ins)] = getKeyBlock(psPeriph, psProc);  goto INC_PC;
-                case POST_OP_F_SET_DELAY_TIMER:  psProc->delTimer = psProc->reg[GetRegX(ins)];       goto INC_PC;
-                case POST_OP_F_SET_SOUND_TIMER:  psProc->sndTimer = psProc->reg[GetRegX(ins)];       goto INC_PC;
-                case POST_OP_F_MEM_ADD: psProc->ind += psProc->reg[GetRegX(ins)]; goto INC_PC;
-                case POST_OP_F_SPRITE_ADDR: psProc->ind = psProc->reg[GetRegX(ins)] * 5; goto INC_PC;
-                case POST_OP_F_STORE_BCD: 
+                case OP_F007: psProc->reg[GetRegX(ins)] = psProc->delTimer;               goto INC_PC;                
+                case OP_F00A: psProc->reg[GetRegX(ins)] = getKeyBlock(psPeriph, psProc);  goto INC_PC;
+                case OP_F015: psProc->delTimer = psProc->reg[GetRegX(ins)];               goto INC_PC;
+                case OP_F018: psProc->sndTimer = psProc->reg[GetRegX(ins)];               goto INC_PC;
+                case OP_F01E: psProc->ind += psProc->reg[GetRegX(ins)];                   goto INC_PC;
+                case OP_F029: psProc->ind = psProc->reg[GetRegX(ins)] * 5;                goto INC_PC;
+                case OP_F033: 
                 {
                     uint8_t val = psProc->reg[GetRegX(ins)];
                     psMem->memory[psProc->ind] = val / 100;  
@@ -258,8 +255,8 @@ int decode(sMem* psMem, sProc* psProc, sPeriph* psPeriph, uint16_t ins) {
                     psMem->memory[psProc->ind + 2] = val % 10;
                     goto INC_PC;
                 }
-                case POST_OP_F_REG_DUMP: regDump(GetRegX(ins), psMem, psProc); goto INC_PC;
-                case POST_OP_F_REG_LOAD: regLoad(GetRegX(ins), psMem, psProc); goto INC_PC;
+                case OP_F055: regDump(GetRegX(ins), psMem, psProc); goto INC_PC;
+                case OP_F065: regLoad(GetRegX(ins), psMem, psProc); goto INC_PC;
             }
         }        
         default: return -1;    
@@ -345,7 +342,6 @@ uint8_t getKeyBlock(sPeriph* psPeriph, sProc* psProc) {
     if      (keys[0x0]) { return 0x0; }
     else if (keys[0x1]) { return 0x1; }
     else if (keys[0x2]) { return 0x2; }
-
     else if (keys[0x3]) { return 0x3; }
     else if (keys[0x4]) { return 0x4; }
     else if (keys[0x5]) { return 0x5; }

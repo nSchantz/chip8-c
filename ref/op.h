@@ -1,50 +1,50 @@
 #ifndef CHIP_OP_H__
 #define CHIP_OP_H__
 
-#define PRE_OP_MULTI_0 0x0
-    #define POST_OP_0_CALL_MACH 0x0
+#define OP_00ZZ 0x0
+    #define OP_0000 0x0
     // May want to check Pre op byte for 0 in lower bits.
-    #define POST_OP_0_DISP_CLEAR 0x0E0
-    #define POST_OP_0_RET 0x0EE
+    #define OP_00E0 0x0E0
+    #define OP_00EE 0x0EE
 
-#define PRE_OP_JUMP 0x1
-#define PRE_OP_CALL_SUB 0x2
-#define PRE_OP_EQ_SKIP_CONS 0x3
-#define PRE_OP_NEQ_SKIP_CONS 0x4
-#define PRE_OP_EQ_SKIP_VAR 0x5
-#define PRE_OP_ASSIGN_CONST 0x6
-#define PRE_OP_ADD_CONST 0x7
+#define OP_1000 0x1
+#define OP_2000 0x2
+#define OP_3000 0x3
+#define OP_4000 0x4
+#define OP_5000 0x5
+#define OP_6000 0x6
+#define OP_7000 0x7
 
-#define PRE_OP_REG_OPER 0x8
-    #define POST_OP_8_ASSIGN_REG 0x0
-    #define POST_OP_8_BIT_OR 0x1
-    #define POST_OP_8_BIT_AND 0x2
-    #define POST_OP_8_BIT_XOR 0x3
-    #define POST_OP_8_ADD_REG 0x4
-    #define POST_OP_8_SUB_REG 0x5
-    #define POST_OP_8_SHIFT_RIGHT 0x6
-    #define POST_OP_8_REV_SUB 0x7
-    #define POST_OP_8_SHIFT_LEFT 0xE
+#define OP_800Z 0x8
+    #define OP_8000 0x0
+    #define OP_8001 0x1
+    #define OP_8002 0x2
+    #define OP_8003 0x3
+    #define OP_8004 0x4
+    #define OP_8005 0x5
+    #define OP_8006 0x6
+    #define OP_8007 0x7
+    #define OP_800E 0xE
 
-#define PRE_OP_NEQ_SKIP_VAR 0x9
-#define PRE_OP_SET_MEMADDR 0xA
-#define PRE_OP_REL_JUMP 0xB
-#define PRE_OP_RAND 0xC
-#define PRE_OP_DISP_DRAW 0xD
+#define OP_9000 0x9
+#define OP_A000 0xA
+#define OP_B000 0xB
+#define OP_C000 0xC
+#define OP_D000 0xD
 
-#define PRE_OP_KEYPRESS 0xE
-    #define POST_OP_E_EQ_SKIP 0x9E
-    #define POST_OP_E_NEQ_SKIP 0xA1
+#define OP_E0ZZ 0xE
+    #define OP_E09E 0x9E
+    #define OP_E0A1 0xA1
 
-#define PRE_OP_MULTI_F 0xF
-    #define POST_OP_F_GET_DELAY_TIMER 0x07
-    #define POST_OP_F_KEYPRESS_BLOCK 0x0A
-    #define POST_OP_F_SET_DELAY_TIMER 0x15
-    #define POST_OP_F_SET_SOUND_TIMER 0x18
-    #define POST_OP_F_MEM_ADD 0x1E
-    #define POST_OP_F_SPRITE_ADDR 0x29
-    #define POST_OP_F_STORE_BCD 0x33
-    #define POST_OP_F_REG_DUMP 0x55
-    #define POST_OP_F_REG_LOAD 0x65
+#define OP_F0ZZ 0xF
+    #define OP_F007 0x07
+    #define OP_F00A 0x0A
+    #define OP_F015 0x15
+    #define OP_F018 0x18
+    #define OP_F01E 0x1E
+    #define OP_F029 0x29
+    #define OP_F033 0x33
+    #define OP_F055 0x55
+    #define OP_F065 0x65
 
 #endif // CHIP_OP_H__

@@ -61,6 +61,7 @@ int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
     while (emuState) {
         if (EMU_DEBUG) { printf("Emu  | Cycle: %d\n", emuCycle); }
 
+        // Detect if PC goes out of bounds
         if (psProc->pc > EMU_ROM_ADDR + psMem->textSecLen || psProc->pc < EMU_ROM_ADDR)
         {
             if (EMU_DEBUG) { printf("---- | \tPC outside of text section. Exiting...\n"); }
@@ -68,18 +69,13 @@ int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
             continue;
         }
 
+        // Get Keyboard Inputs
         if (getKey(psPeriph) == INPUT_EXIT)
         {
             emuState = EMU_STATE_STOPPED;
             continue;
-        }
-        //getKeyBlock(psProc, 0);
-        //printf("KeyPress: %d\n", psProc->reg[0]);
-        
-        // Fetch Instruction from Memory, Decode Instruction
-        decode(psMem, psProc, psPeriph, fetch(psMem, psProc));
+        }        
 
-        // Update Peripheral
         if (emuCycle % EMU_REFRESH_RATE == 0)
         {
             if (psProc->delTimer > 0)
@@ -92,6 +88,10 @@ int run(sMem* psMem, sProc* psProc, sPeriph* psPeriph) {
                 psProc->sndTimer -= 1;
             }
 
+            // Fetch, Decode, Execute
+            decode(psMem, psProc, psPeriph, fetch(psMem, psProc));
+
+            // Update Screen
             updateScreen(psPeriph, psMem);
         }
                 

@@ -12,11 +12,11 @@
 #include "op.h"
 
 // Mem Defines
-#define MEM_DEBUG 1
+#define MEM_DEBUG 0
 #define FONT_SIZE 80
 
 // Proc Defines
-#define PROC_DEBUG 1
+#define PROC_DEBUG 0
 #define INS_SIZE 2
 #define CARRY 1
 #define FLAG_REG 0xF
